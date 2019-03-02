@@ -11,8 +11,8 @@ namespace ReactAspx.Controllers
     {
         public ActionResult Index()
         {
-            AppDbContext c = new AppDbContext();
-            c.Database.CreateIfNotExists();
+            //AppDbContext c = new AppDbContext();
+            //c.Database.CreateIfNotExists();
 
             return View();
         }
