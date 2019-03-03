@@ -41,9 +41,55 @@ namespace ReactAspx.Controllers
         }
 
         [HttpPost]
-        public ActionResult PlaceOrder()
+        public ActionResult PlaceOrder(IList<FoodItem> items, int id)
         {
-            return null;
+            bool dbSuccess = false;
+
+            try
+            {
+                using (var db = new AppDbContext())
+                {
+                    Order o = new Order();
+                    o.CustomerId = id;
+                    o.OrderDate = DateTime.Now;
+
+                    db.Orders.Add(o);
+                    db.SaveChanges();
+
+                    int orderId = o.Id;
+                    decimal grandTotal = 0;
+
+                    foreach (var f in items)
+                    {
+                        OrderDetail orderDetail = new OrderDetail
+                        {
+                            OrderId = orderId,
+                            FoodItemId = f.Id,
+                            Quantity = f.Quantity,
+                            TotalPrice = f.Price * f.Quantity,
+                        };
+
+                        db.OrderDatails.Add(orderDetail);
+                        grandTotal += orderDetail.TotalPrice;
+                    }
+
+                    o.TotalPaid = grandTotal;
+                    o.Status = 1;
+                    o.OrderDate = DateTime.Now;
+                    db.SaveChanges();
+                    dbSuccess = true;
+                }
+            }
+            catch(Exception ex)
+            {
+                //log ex
+                dbSuccess = false;
+            }
+
+            if (dbSuccess)
+                return Json("success: true", JsonRequestBehavior.AllowGet);
+            else
+                return Json("success: false", JsonRequestBehavior.AllowGet);
         }
     }
 }
