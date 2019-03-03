@@ -384,7 +384,7 @@ namespace ReactAspx.Controllers
         //
         // GET: /Account/LogOff
         [HttpGet]
-        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public ActionResult LogOff()
         {
             Session["Email"] = null;
