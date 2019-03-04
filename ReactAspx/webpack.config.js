@@ -1,4 +1,5 @@
-﻿module.exports = {
+﻿
+module.exports = {
     entry: "./Content/src/food.tsx",
     mode: "development",
     output: {

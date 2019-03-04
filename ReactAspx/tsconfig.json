@@ -3,15 +3,15 @@
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
-    "noresolve": false,
-    "noImplicityAny": false,
+    "noResolve": false,
+    "noImplicitAny": false,
     "removeComments": true,
     "sourceMap": true,
     "allowJs": false,
     "jsx": "react"
   },
   "include": [ "./Content/src/**/*" ],
-  "exclide": [
+  "exclude": [
     "./plugins/**/*",
     "./typings/**/*",
     "./built/**/*",
