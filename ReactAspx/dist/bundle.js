@@ -107,7 +107,19 @@ class MenuBox extends React.Component {
             userId: 0,
             orderPlaced: false
         };
+        this.getLoginStatus();
         this.loadMenusFromServer();
+    }
+    getLoginStatus() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', '/data/GetUserId/', true);
+        xhr.onload = function () {
+            var userid = JSON.parse(xhr.responseText);
+            var tmp = this.state;
+            tmp.userId = userid;
+            this.setState(tmp);
+        }.bind(this);
+        xhr.send();
     }
     loadMenusFromServer() {
         var xhr = new XMLHttpRequest();
@@ -120,9 +132,30 @@ class MenuBox extends React.Component {
         }.bind(this);
         xhr.send();
     }
+    addToCart(id) {
+        if (this.state.userId < 1) {
+            alert('Login to continue...');
+            return;
+        }
+        id--;
+        var myCart = this.state.myOrder || [];
+        var allItems = this.state.items;
+        if (myCart.indexOf(allItems[id]) > -1) {
+            var itemToOrder = myCart.find(m => m.Id === allItems[id].Id);
+            itemToOrder["Quantity"] = itemToOrder["Quantity"] + 1;
+        }
+        else {
+            var itemToOrder = allItems[id];
+            itemToOrder["Quantity"] = 1;
+            myCart.push(allItems[id]);
+        }
+        var tmp = this.state;
+        tmp.myOrder = myCart;
+        tmp.showPopup = false;
+        this.setState(tmp);
+    }
     render() {
         let menus = this.state.items || [];
-        console.log('Aqui...', menus);
         var menuList = menus.map(function (menu) {
             return (React.createElement("div", { key: menu.Id },
                 React.createElement("b", null, menu.Name),
@@ -132,11 +165,41 @@ class MenuBox extends React.Component {
                 React.createElement("p", null),
                 React.createElement("div", null,
                     "$",
-                    menu.Price),
+                    menu.Price,
+                    " | ",
+                    React.createElement("a", { href: '#', onClick: this.addToCart.bind(this, menu.Id) }, "Add to cart")),
                 React.createElement("hr", null)));
         }, this);
+        var total = 0;
+        let myCart = this.state.myOrder || [];
+        var myItems = myCart.map(function (menu) {
+            return (React.createElement("div", { key: menu.Id },
+                React.createElement("img", { style: { width: '75px', float: 'left', margin: '5px' }, src: "/img/" + menu.Picture }),
+                menu.Name,
+                React.createElement("br", null),
+                "Qty: ",
+                menu.Quantity,
+                React.createElement("br", null),
+                "Price: $",
+                menu.Price * menu.Quantity,
+                React.createElement("br", null),
+                React.createElement("hr", null)));
+        }, this);
+        myCart.forEach(item => {
+            total += (item.Price * item.Quantity);
+        });
+        var totalAndContinueLink = React.createElement("div", { className: "grandTotal cartEmpty" }, "Cart Empty!");
+        if (total > 0) {
+            totalAndContinueLink = React.createElement("div", { className: "grandTotal cartNotEmpty" },
+                "Grand Total: $",
+                total,
+                React.createElement("button", { className: "greenBtn continueOrder" }, "Continnue Order"));
+        }
         return (React.createElement("div", { id: "wrapper" },
-            React.createElement("div", { id: "dvmenu" }, menuList)));
+            React.createElement("div", { id: "dvmenu" }, menuList),
+            React.createElement("div", { id: "dvcart" },
+                React.createElement("div", { id: "cartContent" }, myItems),
+                totalAndContinueLink)));
     }
 }
 exports.MenuBox = MenuBox;
