@@ -17,7 +17,22 @@ export class MenuBox extends React.Component<any, IAppState> {
             orderPlaced: false
         };
 
+        this.getLoginStatus();
         this.loadMenusFromServer();
+    }
+
+    getLoginStatus() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', '/data/GetUserId/', true);
+
+        xhr.onload = function () {
+            var userid: number = JSON.parse(xhr.responseText);
+            var tmp: IAppState = this.state;
+            tmp.userId = userid;
+            this.setState(tmp);
+        }.bind(this);
+
+        xhr.send();
     }
 
     loadMenusFromServer() {
@@ -34,9 +49,32 @@ export class MenuBox extends React.Component<any, IAppState> {
         xhr.send();
     }
 
+    addToCart(id) {
+        if (this.state.userId < 1) {
+            alert('Login to continue...');
+            return;
+        }
+
+        id--;
+        var myCart = this.state.myOrder || [];
+        var allItems = this.state.items;
+        if (myCart.indexOf(allItems[id]) > -1) {
+            var itemToOrder = myCart.find(m => m.id === allItems[id].Id);
+            itemToOrder["Quantity"] = itemToOrder["Quantity"] + 1;
+        } else {
+            var itemToOrder = allItems[id];
+            itemToOrder["Quantity"] = 1;
+            myCart.push(allItems[id]);
+        }
+
+        var tmp: IAppState = this.state;
+        tmp.myOrder = myCart;
+        tmp.showPopup = false;
+        this.setState(tmp);
+    }
+
     render() {
         let menus = this.state.items || [];
-        console.log('Aqui...', menus);
         var menuList = menus.map(
             function (menu) {
                 return (
@@ -45,7 +83,11 @@ export class MenuBox extends React.Component<any, IAppState> {
                         <img style={{ width: '100px', float: 'left', margin: '5px' }} src={"/img/" + menu.Picture} />
                         {menu.Description }
                         <p/>
-                        <div>${menu.Price}</div><hr/>
+                        <div>
+                            ${menu.Price} |
+                            <a href='#' onclick={this.addToCart.bind(this, menu.Id)}>Add to cart</a>
+                        </div>
+                        <hr/>
                     </div>
                 )
             }
