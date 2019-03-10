@@ -86,6 +86,64 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./Content/src/MenuBox.tsx":
+/*!*********************************!*\
+  !*** ./Content/src/MenuBox.tsx ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+class MenuBox extends React.Component {
+    constructor(state) {
+        super(state);
+        this.state = {
+            items: null,
+            myOrder: null,
+            showPopup: null,
+            userId: 0,
+            orderPlaced: false
+        };
+        this.loadMenusFromServer();
+    }
+    loadMenusFromServer() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', '/data/GetMenuList/', true);
+        xhr.onload = function () {
+            var dataitems = JSON.parse(xhr.responseText);
+            var tmp = this.state;
+            tmp.items = dataitems;
+            this.setState(tmp);
+        }.bind(this);
+        xhr.send();
+    }
+    render() {
+        let menus = this.state.items || [];
+        console.log('Aqui...', menus);
+        var menuList = menus.map(function (menu) {
+            return (React.createElement("div", { key: menu.Id },
+                React.createElement("b", null, menu.Name),
+                React.createElement("br", null),
+                React.createElement("img", { style: { width: '100px', float: 'left', margin: '5px' }, src: "/img/" + menu.Picture }),
+                menu.Description,
+                React.createElement("p", null),
+                React.createElement("div", null,
+                    "$",
+                    menu.Price),
+                React.createElement("hr", null)));
+        }, this);
+        return (React.createElement("div", { id: "wrapper" },
+            React.createElement("div", { id: "dvmenu" }, menuList)));
+    }
+}
+exports.MenuBox = MenuBox;
+
+
+/***/ }),
+
 /***/ "./Content/src/food.tsx":
 /*!******************************!*\
   !*** ./Content/src/food.tsx ***!
@@ -98,8 +156,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+const MenuBox_1 = __webpack_require__(/*! ./MenuBox */ "./Content/src/MenuBox.tsx");
 ReactDOM.render(React.createElement("div", null,
-    React.createElement("h2", null, "Test 123")), document.getElementById("foodorder"));
+    React.createElement(MenuBox_1.MenuBox, null)), document.getElementById("foodorder"));
 
 
 /***/ }),

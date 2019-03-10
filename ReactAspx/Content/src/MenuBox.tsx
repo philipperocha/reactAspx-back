@@ -35,8 +35,28 @@ export class MenuBox extends React.Component<any, IAppState> {
     }
 
     render() {
+        let menus = this.state.items || [];
+        console.log('Aqui...', menus);
+        var menuList = menus.map(
+            function (menu) {
+                return (
+                    <div key={menu.Id}>
+                        <b>{menu.Name}</b><br/>
+                        <img style={{ width: '100px', float: 'left', margin: '5px' }} src={"/img/" + menu.Picture} />
+                        {menu.Description }
+                        <p/>
+                        <div>${menu.Price}</div><hr/>
+                    </div>
+                )
+            }
+            , this);
+
         return (
-            <div>Text 123</div>
+            <div id="wrapper">
+                <div id="dvmenu">
+                    {menuList}
+                </div>
+            </div>
         );
     }
 }

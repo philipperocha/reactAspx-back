@@ -1,0 +1,17 @@
+﻿
+#wrapper {
+    display: flex;
+}
+
+#dvmenu {
+    flex: 0 0 85%;
+    border: 0px #ccc solid;
+}
+
+#dvmenu div {
+    width: 280px;
+    margin: 10px;
+    display: inline-block;
+    text-align: justify;
+    vertical-align: top;
+}
