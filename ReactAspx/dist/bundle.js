@@ -99,7 +99,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 ReactDOM.render(React.createElement("div", null,
-    React.createElement("h2", null, "Test")), document.getElementById("foodorder"));
+    React.createElement("h2", null, "Test 123")), document.getElementById("foodorder"));
 
 
 /***/ }),
@@ -24706,7 +24706,7 @@ exports.unstable_getFirstCallbackNode = unstable_getFirstCallbackNode;
   })();
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! (webpack)/buildin/global.js */ "C:\\Users\\PHILIPPE\\AppData\\Roaming\\npm\\node_modules\\webpack\\buildin\\global.js")))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
 
 /***/ }),
 
@@ -24744,7 +24744,7 @@ if (false) {} else {
 
 /***/ }),
 
-/***/ "C:\\Users\\PHILIPPE\\AppData\\Roaming\\npm\\node_modules\\webpack\\buildin\\global.js":
+/***/ "./node_modules/webpack/buildin/global.js":
 /*!***********************************!*\
   !*** (webpack)/buildin/global.js ***!
   \***********************************/
