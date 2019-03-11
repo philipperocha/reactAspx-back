@@ -154,6 +154,21 @@ class MenuBox extends React.Component {
         tmp.showPopup = false;
         this.setState(tmp);
     }
+    removeFromCart(id) {
+        if (this.state.userId < 1) {
+            alert('Log in to continue...');
+            return;
+        }
+        var myCart = this.state.myOrder || [];
+        var allItems = this.state.items;
+        myCart.splice(id, 1);
+        var tmp = this.state;
+        tmp.myOrder = myCart;
+        this.setState(tmp);
+    }
+    continueOrder() {
+        alert('Coding in progress...');
+    }
     render() {
         let menus = this.state.items || [];
         var menuList = menus.map(function (menu) {
@@ -171,8 +186,10 @@ class MenuBox extends React.Component {
                 React.createElement("hr", null)));
         }, this);
         var total = 0;
+        var cartItemIndex = 0;
         let myCart = this.state.myOrder || [];
         var myItems = myCart.map(function (menu) {
+            total += menu.Price * menu.Quantity;
             return (React.createElement("div", { key: menu.Id },
                 React.createElement("img", { style: { width: '75px', float: 'left', margin: '5px' }, src: "/img/" + menu.Picture }),
                 menu.Name,
@@ -183,17 +200,31 @@ class MenuBox extends React.Component {
                 "Price: $",
                 menu.Price * menu.Quantity,
                 React.createElement("br", null),
+                "| ",
+                React.createElement("a", { href: '#', onClick: this.removeFromCart.bind(this, cartItemIndex++) }, "remove"),
                 React.createElement("hr", null)));
         }, this);
-        myCart.forEach(item => {
-            total += (item.Price * item.Quantity);
-        });
         var totalAndContinueLink = React.createElement("div", { className: "grandTotal cartEmpty" }, "Cart Empty!");
         if (total > 0) {
             totalAndContinueLink = React.createElement("div", { className: "grandTotal cartNotEmpty" },
                 "Grand Total: $",
                 total,
-                React.createElement("button", { className: "greenBtn continueOrder" }, "Continnue Order"));
+                React.createElement("button", { className: "greenBtn continueOrder", onClick: this.continueOrder.bind(this) }, "Continnue Order"));
+        }
+        var cart = document.getElementById("dvcart");
+        var menu = document.getElementById("dvmenu");
+        if (this.state.userId < 1) {
+            myItems = null;
+            if (cart != null)
+                cart.style.display = "none";
+            if (menu != null)
+                menu.style.flex = "0 0 85%";
+        }
+        else {
+            if (cart != null)
+                cart.style.display = "block";
+            if (menu != null)
+                menu.style.flex = "0 0 55%";
         }
         return (React.createElement("div", { id: "wrapper" },
             React.createElement("div", { id: "dvmenu" }, menuList),
