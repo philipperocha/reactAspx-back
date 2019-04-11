@@ -10,13 +10,13 @@
   "license": "ISC",
   "dependencies": {
     "@types/json-parse-better-errors": "^1.0.0",
-    "@types/react": "^16.8.7",
+    "@types/react": "^16.8.8",
     "@types/react-dom": "^16.8.2",
     "awesome-typescript-loader": "^5.2.1",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "source-map-loader": "^0.2.4",
-    "typescript": "^3.3.3333",
+    "typescript": "^3.4.3",
     "webpack": "^4.29.6"
   },
   "devDependencies": {
