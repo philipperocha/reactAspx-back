@@ -28,6 +28,7 @@ namespace ReactAspx.Controllers
         }
 
         [HttpGet]
+        [AuthorizeShop]
         public string GetUserID()
         {
             int uid = -1;
@@ -41,6 +42,7 @@ namespace ReactAspx.Controllers
         }
 
         [HttpPost]
+        [AuthorizeShop]
         public ActionResult PlaceOrder(IList<FoodItem> items, int id)
         {
             bool dbSuccess = false;
@@ -90,6 +92,34 @@ namespace ReactAspx.Controllers
                 return Json("success: true", JsonRequestBehavior.AllowGet);
             else
                 return Json("success: false", JsonRequestBehavior.AllowGet);
+        }
+    }
+
+    public class AuthorizeShop: AuthorizeAttribute
+    {
+        protected override bool AuthorizeCore(HttpContextBase httpContext)
+        {
+            if (httpContext == null)
+            {
+                throw new ArgumentNullException("httpContext");
+            }
+
+            if (httpContext.Session["Email"] == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public override void OnAuthorization(AuthorizationContext filterContext)
+        {
+            base.OnAuthorization(filterContext);
+
+            if (this.AuthorizeCore(filterContext.HttpContext) == false)
+            {
+                filterContext.Result = new RedirectResult("/Account/Login/?ret=" + filterContext.HttpContext.Request.CurrentExecutionFilePath);
+            }
         }
     }
 }
