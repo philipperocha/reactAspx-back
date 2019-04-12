@@ -21,7 +21,7 @@ namespace ReactAspx.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("DefaultConnection", throwIfV1Schema: false)
+            : base("MyPostgreeConnection", throwIfV1Schema: false)
         {
         }
 
