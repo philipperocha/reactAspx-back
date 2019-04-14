@@ -131,15 +131,15 @@ export class MenuBox extends React.Component<any, IAppState> {
         let menus = this.state.items || [];
         var menuList = menus.map(function (menu) {
             return (
-                <div key={menu.Id}>
+                <div style={{ marginBottom: '34px', marginRight: '16px', marginLeft: '16px' }} key={menu.Id}>
                     <b>{menu.Name}</b><br/>
-                    <img style={{ width: '100px', float: 'left', margin: '5px' }} src={"/img/" + menu.Picture} />
-                    {menu.Description}
-                    <p/>
-                    <div>
-                        ${menu.Price} | <a href='#' onClick={this.addToCart.bind(this, menu.Id)}>Add to cart</a>
+                    <img style={{ width: '220px', height: '150px', float: 'left', marginTop: '5px' }} src={"/img/" + menu.Picture} />
+                    <div style={{ fontSize: '12px' }}>
+                        {menu.Description}
                     </div>
-                    <hr/>
+                    <div>
+                        ${menu.Price} | <a href='#null' onClick={this.addToCart.bind(this, menu.Id) }>Add to cart</a>
+                    </div>
                 </div>
             )}, this);
 
@@ -157,7 +157,7 @@ export class MenuBox extends React.Component<any, IAppState> {
                     <br/>
                     Price: ${menu.Price * menu.Quantity}
                     <br/>
-                    | <a href='#' onClick={this.removeFromCart.bind(this, cartItemIndex++) }>remove</a>
+                    | <a href='#null' onClick={this.removeFromCart.bind(this, cartItemIndex++) }>remove</a>
                     <hr/>
                 </div>
             )}, this);

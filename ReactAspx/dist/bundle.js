@@ -204,18 +204,16 @@ class MenuBox extends React.Component {
     render() {
         let menus = this.state.items || [];
         var menuList = menus.map(function (menu) {
-            return (React.createElement("div", { key: menu.Id },
+            return (React.createElement("div", { style: { marginBottom: '34px', marginRight: '16px', marginLeft: '16px' }, key: menu.Id },
                 React.createElement("b", null, menu.Name),
                 React.createElement("br", null),
-                React.createElement("img", { style: { width: '100px', float: 'left', margin: '5px' }, src: "/img/" + menu.Picture }),
-                menu.Description,
-                React.createElement("p", null),
+                React.createElement("img", { style: { width: '220px', height: '150px', float: 'left', marginTop: '5px' }, src: "/img/" + menu.Picture }),
+                React.createElement("div", { style: { fontSize: '12px' } }, menu.Description),
                 React.createElement("div", null,
                     "$",
                     menu.Price,
                     " | ",
-                    React.createElement("a", { href: '#', onClick: this.addToCart.bind(this, menu.Id) }, "Add to cart")),
-                React.createElement("hr", null)));
+                    React.createElement("a", { href: '#null', onClick: this.addToCart.bind(this, menu.Id) }, "Add to cart"))));
         }, this);
         var total = 0;
         var cartItemIndex = 0;
@@ -233,7 +231,7 @@ class MenuBox extends React.Component {
                 menu.Price * menu.Quantity,
                 React.createElement("br", null),
                 "| ",
-                React.createElement("a", { href: '#', onClick: this.removeFromCart.bind(this, cartItemIndex++) }, "remove"),
+                React.createElement("a", { href: '#null', onClick: this.removeFromCart.bind(this, cartItemIndex++) }, "remove"),
                 React.createElement("hr", null)));
         }, this);
         var totalAndContinueLink = React.createElement("div", { className: "grandTotal cartEmpty" }, "Cart Empty!");
@@ -319,6 +317,7 @@ class Popup extends React.Component {
     }
     render() {
         var total = 0;
+        var tax = (10 / 100);
         var totalMsg = '';
         let myCart = this.props.myOrder || [];
         var myItems = myCart.map(function (menu) {
@@ -337,11 +336,16 @@ class Popup extends React.Component {
                 React.createElement("div", { style: { height: '35px' } },
                     React.createElement("hr", null),
                     "Total = $",
-                    (Math.round(total * 100) / 100).toFixed(2)),
-                React.createElement("div", { style: { height: '25px' } }, "Tax = 10"),
+                    ((total * 100) / 100).toFixed(2)),
+                React.createElement("div", { style: { height: '25px' } },
+                    "Tax = $",
+                    (total * tax).toFixed(2),
+                    " (",
+                    (tax * 100),
+                    "%)"),
                 React.createElement("div", { className: 'grandSum' },
-                    "Grand Total: $",
-                    (Math.round(total * 100) / 100).toFixed(2)),
+                    "Total + tax: $",
+                    (total * (1 + tax)).toFixed(2)),
                 React.createElement("div", { className: 'payment' }, "Payment: [Cedit Card on file will be Charged!]"),
                 React.createElement("div", { style: { height: '20px' } }, "Deliver to: [address on file]"),
                 React.createElement("div", { className: 'delivEstimate' }, "Delivery estimates: 20 - 40 minutes"),
