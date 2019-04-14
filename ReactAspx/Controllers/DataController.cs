@@ -24,6 +24,14 @@ namespace ReactAspx.Controllers
                 }
             }
 
+            menuItems = menuItems.OrderBy(item => item.Id).ToList();
+            //int i = 1;
+            //foreach(FoodItem f in menuItems)
+            //{
+            //    f.Id = i;
+            //    i++;
+            //}
+
             return Json(menuItems, JsonRequestBehavior.AllowGet);
         }
 
