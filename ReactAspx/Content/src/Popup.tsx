@@ -40,7 +40,8 @@ export class Popup extends React.Component<any, any> {
     }
  
 	render() {
-		var total = 0;
+        var total = 0;
+        var tax = (10 / 100);
 		var totalMsg =  '';
 		let myCart = this.props.myOrder || [];
 		
@@ -63,14 +64,14 @@ export class Popup extends React.Component<any, any> {
                     <div className='foodList'>{myItems}</div>
 
                     <div style={{ height: '35px' }}>                  
-                        <hr/>Total = ${(Math.round(total * 100) / 100).toFixed(2)} 
+                        <hr/>Total = ${((total * 100) / 100).toFixed(2)} 
                     </div>
                     <div style={{ height: '25px' }}>
-                        Tax = 10
+                        Tax = ${(total * tax).toFixed(2)} ({(tax * 100) }%)
                     </div>
 
                     <div className='grandSum'>
-                        Grand Total: ${(Math.round(total * 100) / 100).toFixed(2)} 
+                        Total + tax: ${(total * (1 + tax)).toFixed(2)} 
                     </div>
 
                     <div className='payment'>Payment: [Cedit Card on file will be Charged!]</div>
