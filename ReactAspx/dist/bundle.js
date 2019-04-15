@@ -95,6 +95,14 @@
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const Popup_1 = __webpack_require__(/*! ./Popup */ "./Content/src/Popup.tsx");
@@ -106,11 +114,26 @@ class MenuBox extends React.Component {
             myOrder: null,
             showPopup: null,
             userId: 0,
-            orderPlaced: false
+            orderPlaced: false,
+            loading: true
         };
-        this.getLoginStatus();
-        this.loadMenusFromServer();
         this.handleDataFromChild = this.handleDataFromChild.bind(this);
+    }
+    componentWillMount() {
+        this.loadingData();
+    }
+    loadingData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.getLoginStatus();
+            yield this.loadMenusFromServerPromise()
+                .then(responseText => {
+                var dataitems = JSON.parse(responseText.toString());
+                var tmp = this.state;
+                tmp.items = dataitems;
+                this.setState(tmp);
+            });
+            this.setState({ loading: false });
+        });
     }
     handleDataFromChild(popupShown, isOrderPlaced) {
         var tmp = this.state;
@@ -141,7 +164,7 @@ class MenuBox extends React.Component {
         var xhr = new XMLHttpRequest();
         xhr.open('get', '/data/GetUserId/', true);
         xhr.onload = function () {
-            var userid = JSON.parse(xhr.responseText);
+            var userid = parseInt(xhr.responseText);
             if (!isNaN(userid)) {
                 var tmp = this.state;
                 tmp.userId = userid;
@@ -151,15 +174,41 @@ class MenuBox extends React.Component {
         xhr.send();
     }
     loadMenusFromServer() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('get', '/data/GetMenuList/', true);
-        xhr.onload = function () {
-            var dataitems = JSON.parse(xhr.responseText);
-            var tmp = this.state;
-            tmp.items = dataitems;
-            this.setState(tmp);
-        }.bind(this);
-        xhr.send();
+        return __awaiter(this, void 0, void 0, function* () {
+            var xhr = new XMLHttpRequest();
+            xhr.open('get', '/data/GetMenuList/', true);
+            xhr.onload = function () {
+                var dataitems = JSON.parse(xhr.responseText);
+                var tmp = this.state;
+                tmp.items = dataitems;
+                this.setState(tmp);
+            }.bind(this);
+            yield xhr.send();
+        });
+    }
+    loadMenusFromServerPromise() {
+        return new Promise(function (resolve, reject) {
+            let xhr = new XMLHttpRequest();
+            xhr.open('get', '/data/GetMenuList/', true);
+            xhr.onload = function () {
+                if (this.status >= 200 && this.status < 300) {
+                    resolve(xhr.responseText);
+                }
+                else {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                }
+            };
+            xhr.onerror = function () {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            };
+            xhr.send();
+        });
     }
     addToCart(id) {
         if (this.state.userId < 1) {
@@ -201,7 +250,22 @@ class MenuBox extends React.Component {
         this.setState(tmp);
         document.getElementById('dvcart').style.visibility = 'hidden';
     }
+    renderCart(myItems, totalAndContinueLink) {
+        if (this.state.userId > 0) {
+            return (React.createElement("div", { id: "dvcart" },
+                React.createElement("div", { className: "myCart" },
+                    "My Cart",
+                    React.createElement("button", { style: { marginLeft: 10 }, id: "btnToggle", className: "smartButton", onClick: this.toggleView.bind(this) }, "+")),
+                React.createElement("div", { id: "cartContent" }, myItems),
+                totalAndContinueLink));
+        }
+    }
     render() {
+        console.log(this.state);
+        if (this.state.loading) {
+            return (React.createElement("div", { style: { margin: '34px' } },
+                React.createElement("b", null, "Loading, please wait...")));
+        }
         let menus = this.state.items || [];
         var menuList = menus.map(function (menu) {
             return (React.createElement("div", { style: { marginBottom: '34px', marginRight: '16px', marginLeft: '16px' }, key: menu.Id },
@@ -211,7 +275,7 @@ class MenuBox extends React.Component {
                 React.createElement("div", { style: { fontSize: '12px' } }, menu.Description),
                 React.createElement("div", null,
                     "$",
-                    menu.Price,
+                    menu.Price.toFixed(2),
                     " | ",
                     React.createElement("a", { href: '#null', onClick: this.addToCart.bind(this, menu.Id) }, "Add to cart"))));
         }, this);
@@ -221,55 +285,41 @@ class MenuBox extends React.Component {
         var myItems = myCart.map(function (menu) {
             total += menu.Price * menu.Quantity;
             return (React.createElement("div", { key: menu.Id },
-                React.createElement("img", { style: { width: '75px', float: 'left', margin: '5px' }, src: "/img/" + menu.Picture }),
+                React.createElement("img", { style: { width: '75px', float: 'left', marginLeft: '5px', marginRight: '5px' }, src: "/img/" + menu.Picture }),
                 menu.Name,
                 React.createElement("br", null),
-                "Qty: ",
                 menu.Quantity,
-                React.createElement("br", null),
-                "Price: $",
-                menu.Price * menu.Quantity,
+                " * ",
+                menu.Price.toFixed(2),
+                " = $",
+                (menu.Price * menu.Quantity).toFixed(2),
                 React.createElement("br", null),
                 "| ",
                 React.createElement("a", { href: '#null', onClick: this.removeFromCart.bind(this, cartItemIndex++) }, "remove"),
-                React.createElement("hr", null)));
+                React.createElement("hr", { style: { marginTop: '8px', marginBottom: '8px' } })));
         }, this);
         var totalAndContinueLink = React.createElement("div", { className: "grandTotal cartEmpty" }, "Cart Empty!");
         if (total > 0) {
             totalAndContinueLink = React.createElement("div", { className: "grandTotal cartNotEmpty" },
                 "Grand Total: $",
-                total,
+                total.toFixed(2),
                 React.createElement("button", { className: "greenBtn continueOrder", onClick: this.continueOrder.bind(this) }, "Continnue Order"));
         }
         var cart = document.getElementById("dvcart");
         var menu = document.getElementById("dvmenu");
         if (this.state.orderPlaced)
             cart.innerHTML = '<div class="orderPlaced">Order Placed successfully!</div>';
+        const menuStyle = (this.state.userId < 1) ? { flex: "0 0 85%" } : { flex: "0 0 55%" };
         if (this.state.userId < 1) {
             myItems = null;
-            if (cart != null)
-                cart.style.display = "none";
-            if (menu != null)
-                menu.style.flex = "0 0 85%";
-        }
-        else {
-            if (cart != null)
-                cart.style.display = "block";
-            if (menu != null)
-                menu.style.flex = "0 0 55%";
         }
         return (React.createElement("div", null,
             this.state.showPopup ?
                 React.createElement(Popup_1.Popup, { handlerFromParent: this.handleDataFromChild, myOrder: this.state.myOrder, userId: this.state.userId })
                 : null,
             React.createElement("div", { id: "wrapper" },
-                React.createElement("div", { id: "dvmenu" }, menuList),
-                React.createElement("div", { id: "dvcart" },
-                    React.createElement("div", { className: "myCart" },
-                        "My Cart",
-                        React.createElement("button", { id: "btnToggle", className: "smartButton", onClick: this.toggleView.bind(this) }, "+")),
-                    React.createElement("div", { id: "cartContent" }, myItems),
-                    totalAndContinueLink))));
+                React.createElement("div", { id: "dvmenu", style: menuStyle }, menuList),
+                this.renderCart(myItems, totalAndContinueLink))));
     }
 }
 exports.MenuBox = MenuBox;
@@ -344,7 +394,7 @@ class Popup extends React.Component {
                     (tax * 100),
                     "%)"),
                 React.createElement("div", { className: 'grandSum' },
-                    "Total + tax: $",
+                    "Grand Total: $",
                     (total * (1 + tax)).toFixed(2)),
                 React.createElement("div", { className: 'payment' }, "Payment: [Cedit Card on file will be Charged!]"),
                 React.createElement("div", { style: { height: '20px' } }, "Deliver to: [address on file]"),

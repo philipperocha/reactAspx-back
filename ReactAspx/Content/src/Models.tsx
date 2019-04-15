@@ -17,4 +17,5 @@ export interface IAppState {
     showPopup: boolean;
     userId: number;
     orderPlaced: boolean;
+    loading: boolean;
 }

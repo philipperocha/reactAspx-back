@@ -15,12 +15,30 @@ export class MenuBox extends React.Component<any, IAppState> {
             myOrder: null,
             showPopup: null,
             userId: 0,
-            orderPlaced: false
+            orderPlaced: false,
+            loading: true
         };
 
-        this.getLoginStatus();
-        this.loadMenusFromServer();
         this.handleDataFromChild = this.handleDataFromChild.bind(this);
+    }
+
+    componentWillMount() {
+        this.loadingData();
+    }
+
+    async loadingData() {
+        this.getLoginStatus();
+        //this.loadMenusFromServer();
+
+        await this.loadMenusFromServerPromise()
+            .then(responseText => {
+                var dataitems = JSON.parse(responseText.toString());
+                var tmp: IAppState = this.state;
+                tmp.items = dataitems;
+                this.setState(tmp);
+            })
+
+        this.setState({ loading: false });
     }
 
     handleDataFromChild(popupShown, isOrderPlaced) {
@@ -55,7 +73,7 @@ export class MenuBox extends React.Component<any, IAppState> {
         xhr.open('get', '/data/GetUserId/', true);
 
         xhr.onload = function () {
-            var userid: number = JSON.parse(xhr.responseText);
+            var userid: number = parseInt(xhr.responseText);
 
             if (!isNaN(userid)) {
                 var tmp: IAppState = this.state;
@@ -68,7 +86,7 @@ export class MenuBox extends React.Component<any, IAppState> {
         xhr.send();
     }
 
-    loadMenusFromServer() {
+    async loadMenusFromServer() {
         var xhr = new XMLHttpRequest();
         xhr.open('get', '/data/GetMenuList/', true);
 
@@ -79,7 +97,35 @@ export class MenuBox extends React.Component<any, IAppState> {
             this.setState(tmp);
         }.bind(this);
 
-        xhr.send();
+        await xhr.send();
+    }
+
+    loadMenusFromServerPromise() {
+        return new Promise(function (resolve, reject) {
+            let xhr = new XMLHttpRequest();
+
+            xhr.open('get', '/data/GetMenuList/', true);
+
+            xhr.onload = function () {
+                if (this.status >= 200 && this.status < 300) {
+                    resolve(xhr.responseText);
+                } else {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                }
+            };
+
+            xhr.onerror = function () {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            };
+
+            xhr.send();
+        });
     }
 
     addToCart(id) {
@@ -127,7 +173,40 @@ export class MenuBox extends React.Component<any, IAppState> {
         document.getElementById('dvcart').style.visibility = 'hidden';
     }
 
+    renderCart(myItems, totalAndContinueLink) {
+        if (this.state.userId > 0) {
+            return (
+                <div id="dvcart">
+                    <div className="myCart">
+                        My Cart 
+                        <button
+                            style={{ marginLeft: 10 }}
+                            id="btnToggle"
+                            className="smartButton"
+                            onClick={this.toggleView.bind(this) }
+                            >
+                            +
+                        </button>
+                    </div>
+                    <div id="cartContent">
+                        {myItems}
+                    </div>
+                    {totalAndContinueLink}
+                </div>
+            );
+        }
+    }
+
     render() {
+        console.log(this.state);
+        if (this.state.loading) {
+            return (
+                <div style={{ margin: '34px' }}>
+                    <b>Loading, please wait...</b>
+                </div>
+            );
+        }
+
         let menus = this.state.items || [];
         var menuList = menus.map(function (menu) {
             return (
@@ -138,10 +217,11 @@ export class MenuBox extends React.Component<any, IAppState> {
                         {menu.Description}
                     </div>
                     <div>
-                        ${menu.Price} | <a href='#null' onClick={this.addToCart.bind(this, menu.Id) }>Add to cart</a>
+                        ${menu.Price.toFixed(2)} | <a href='#null' onClick={this.addToCart.bind(this, menu.Id) }>Add to cart</a>
                     </div>
                 </div>
-            )}, this);
+            )
+        }, this);
 
         var total = 0;
         var cartItemIndex = 0;
@@ -150,26 +230,25 @@ export class MenuBox extends React.Component<any, IAppState> {
             total += menu.Price * menu.Quantity;
             return (
                 <div key={menu.Id}>
-                    <img style={{ width: '75px', float: 'left', margin: '5px' }} src={"/img/" + menu.Picture} />
+                    <img style={{ width: '75px', float: 'left', marginLeft: '5px', marginRight: '5px' }} src={"/img/" + menu.Picture} />
                     {menu.Name}
                     <br/>
-                    Qty: {menu.Quantity}
-                    <br/>
-                    Price: ${menu.Price * menu.Quantity}
+                    {menu.Quantity} * {menu.Price.toFixed(2)} = ${(menu.Price * menu.Quantity).toFixed(2) }
                     <br/>
                     | <a href='#null' onClick={this.removeFromCart.bind(this, cartItemIndex++) }>remove</a>
-                    <hr/>
+                    <hr style={{ marginTop: '8px', marginBottom: '8px' }} />
                 </div>
-            )}, this);
+            )
+        }, this);
 
         var totalAndContinueLink = <div className="grandTotal cartEmpty">Cart Empty!</div>
         if (total > 0) {
             totalAndContinueLink = <div className="grandTotal cartNotEmpty">
-                Grand Total: ${total}
+                Grand Total: ${total.toFixed(2)}
                 <button
                     className="greenBtn continueOrder"
                     onClick={this.continueOrder.bind(this) }
-                >
+                    >
                     Continnue Order
                 </button>
             </div>;
@@ -181,18 +260,10 @@ export class MenuBox extends React.Component<any, IAppState> {
         if (this.state.orderPlaced)
             cart.innerHTML = '<div class="orderPlaced">Order Placed successfully!</div>';
 
+        const menuStyle = (this.state.userId < 1) ? { flex: "0 0 85%" } : { flex: "0 0 55%" };
+
         if (this.state.userId < 1) {
             myItems = null;
-            if (cart != null)
-                cart.style.display = "none";
-            if (menu != null)
-                menu.style.flex = "0 0 85%";
-        }
-        else {
-            if (cart != null)
-                cart.style.display = "block";
-            if (menu != null)
-                menu.style.flex = "0 0 55%";
         }
 
         return (
@@ -208,26 +279,10 @@ export class MenuBox extends React.Component<any, IAppState> {
                 }
 
                 <div id="wrapper">
-                    <div id="dvmenu">
+                    <div id="dvmenu" style={menuStyle}>
                         {menuList}
                     </div>
-
-                    <div id="dvcart">
-                        <div className="myCart">
-                            My Cart
-                            <button
-                                id="btnToggle"
-                                className="smartButton"
-                                onClick={this.toggleView.bind(this)}
-                            >
-                                +
-                            </button>
-                        </div>
-                        <div id="cartContent">
-                            {myItems}
-                        </div>
-                        {totalAndContinueLink}
-                    </div>
+                    {this.renderCart(myItems, totalAndContinueLink)}
                 </div>
             </div>
         );

@@ -71,7 +71,7 @@ export class Popup extends React.Component<any, any> {
                     </div>
 
                     <div className='grandSum'>
-                        Total + tax: ${(total * (1 + tax)).toFixed(2)} 
+                        Grand Total: ${(total * (1 + tax)).toFixed(2)} 
                     </div>
 
                     <div className='payment'>Payment: [Cedit Card on file will be Charged!]</div>
