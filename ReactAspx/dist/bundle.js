@@ -264,7 +264,9 @@ class MenuBox extends React.Component {
         console.log(this.state);
         if (this.state.loading) {
             return (React.createElement("div", { style: { margin: '34px' } },
-                React.createElement("b", null, "Loading, please wait...")));
+                React.createElement("b", null,
+                    "Loading, please wait...",
+                    React.createElement("img", { style: { width: 40, height: 40 }, src: "/img/loading.gif" }))));
         }
         let menus = this.state.items || [];
         var menuList = menus.map(function (menu) {

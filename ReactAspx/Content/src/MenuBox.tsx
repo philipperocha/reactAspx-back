@@ -202,7 +202,9 @@ export class MenuBox extends React.Component<any, IAppState> {
         if (this.state.loading) {
             return (
                 <div style={{ margin: '34px' }}>
-                    <b>Loading, please wait...</b>
+                    <b>Loading, please wait...
+                        <img style={{ width: 40, height: 40 }} src={"/img/loading.gif"} />
+                    </b>
                 </div>
             );
         }
